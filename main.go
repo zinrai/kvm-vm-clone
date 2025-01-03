@@ -10,13 +10,15 @@ import (
 )
 
 var (
-	sourceVM string
-	destVM   string
+	sourceVM         string
+	destVM           string
+	noHostnameChange bool
 )
 
 func init() {
 	flag.StringVar(&sourceVM, "source", "", "Name of the source VM to clone")
 	flag.StringVar(&destVM, "dest", "", "Name for the new cloned VM")
+	flag.BoolVar(&noHostnameChange, "no-hostname-change", false, "Skip hostname change (for FreeBSD or other unsupported OSes)")
 }
 
 func runCommand(name string, args ...string) (string, error) {
@@ -36,7 +38,10 @@ func checkCommand(cmd string) bool {
 }
 
 func checkRequiredCommands() error {
-	requiredCommands := []string{"sudo", "virt-clone", "virt-customize", "virsh"}
+	requiredCommands := []string{"sudo", "virt-clone", "virsh"}
+	if !noHostnameChange {
+		requiredCommands = append(requiredCommands, "virt-customize")
+	}
 	missingCommands := []string{}
 
 	for _, cmd := range requiredCommands {
@@ -80,7 +85,7 @@ func setVMHostname(vmName, hostname string) error {
 
 func main() {
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: %s --source source_vm --dest new_vm\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s --source source_vm --dest new_vm [options]\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "\nClones a KVM virtual machine using virt-clone and sets the new hostname.\n")
 		fmt.Fprintf(os.Stderr, "\nOptions:\n")
 		flag.PrintDefaults()
@@ -111,10 +116,13 @@ func main() {
 		log.Fatalf("Failed to clone VM: %v", err)
 	}
 
-	fmt.Printf("Setting hostname of new VM to '%s'...\n", destVM)
-	if err := setVMHostname(destVM, destVM); err != nil {
-		log.Fatalf("Failed to set hostname: %v", err)
+	if !noHostnameChange {
+		fmt.Printf("Setting hostname of new VM to '%s'...\n", destVM)
+		if err := setVMHostname(destVM, destVM); err != nil {
+			log.Fatalf("Failed to set hostname: %v", err)
+		}
+		fmt.Printf("VM '%s' cloned successfully to '%s' and hostname updated\n", sourceVM, destVM)
+	} else {
+		fmt.Printf("VM '%s' cloned successfully to '%s' (hostname change skipped)\n", sourceVM, destVM)
 	}
-
-	fmt.Printf("VM '%s' cloned successfully to '%s' and hostname updated\n", sourceVM, destVM)
 }

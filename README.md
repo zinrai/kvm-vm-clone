@@ -28,13 +28,19 @@ $ go build
 To use the tool, run it with the following command-line arguments:
 
 ```
-$ ./kvm-vm-clone --source source_vm_name --dest new_vm_name
+$ kvm-vm-clone --source source_vm_name --dest new_vm_name
 ```
 
-Example:
+Clone VM Example:
 
 ```
-$ ./kvm-vm-clone --source ubuntu-vm --dest ubuntu-vm-clone
+$ kvm-vm-clone --source ubuntu-vm --dest ubuntu-vm-clone
+```
+
+Clone VM without changing hostname (for FreeBSD or other unsupported OSes):
+
+```
+$ kvm-vm-clone --source freebsd-vm --dest freebsd-vm-clone --no-hostname-change
 ```
 
 ## Process
