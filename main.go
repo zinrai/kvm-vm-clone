@@ -10,15 +10,23 @@ import (
 )
 
 var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
+var (
 	sourceVM         string
 	destVM           string
 	noHostnameChange bool
+	showVersion      bool
 )
 
 func init() {
 	flag.StringVar(&sourceVM, "source", "", "Name of the source VM to clone")
 	flag.StringVar(&destVM, "dest", "", "Name for the new cloned VM")
 	flag.BoolVar(&noHostnameChange, "no-hostname-change", false, "Skip hostname change (for FreeBSD or other unsupported OSes)")
+	flag.BoolVar(&showVersion, "version", false, "Print version information and exit")
 }
 
 func runCommand(name string, args ...string) (string, error) {
@@ -92,6 +100,11 @@ func main() {
 	}
 
 	flag.Parse()
+
+	if showVersion {
+		fmt.Printf("kvm-vm-clone %s (commit %s, built %s)\n", version, commit, date)
+		os.Exit(0)
+	}
 
 	if sourceVM == "" || destVM == "" {
 		fmt.Println("Error: Both --source and --dest flags are required")
