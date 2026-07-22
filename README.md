@@ -15,14 +15,6 @@ Before you can use this tool, ensure you have the following installed on your sy
 - KVM and related tools (`virt-clone`, `virt-customize`, `virsh`)
 - sudo privileges (the tool uses sudo to run KVM commands)
 
-## Installation
-
-Build the tool:
-
-```
-$ go build
-```
-
 ## Usage
 
 To use the tool, run it with the following command-line arguments:
